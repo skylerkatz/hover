@@ -1,10 +1,10 @@
 # Archticture Concept
 
-Hover was built with enterprise applications in mind and is optimized for security and flexibility. Each stage (dev, staging, production, sandbox, ...) of your application has its own manifest file in which you can configure the different AWS resources used by the stage. You can deploy each stage with a different AWS profile. Each profile can hold credentials to a different user, with granular permissions to manage this stage only, or even a different AWS account.
+Hover was built with enterprise applications in mind and is optimized for security and flexibility. Each stage of your application (dev, staging, production, sandbox, etc.) has its own manifest file in which you can configure the various AWS resources used by the stage. Each stage can be deployed using a different [AWS profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html). Each profile can be associated with a different user, with granular permissions to manage only this stage, or even a different AWS account.
 
-For each stage, Hover creates several Lambda functions, EventBridge rules and CloudWatch log groups. It also creates an HTTP API, CloudFront distribution, ECR Repository and S3 bucket.
+For each stage, Hover creates a number of Lambda functions, EventBridge rules, SQS queues and CloudWatch log groups. It also creates an ApiGateway API, CloudFront distribution, ECR Repository and S3 bucket.
 
-On every deployment, the application code is packaged into a docker image along with the runtime. That image gets uploaded to an AWS ECR repository. Your application asset files are uploaded to an S3 bucket separately.
+On every deployment, the application code is packaged into a docker image along with the runtime. That image gets uploaded to an AWS ECR repository. Separately, your application asset files are uploaded to an S3 bucket.
 
 Let's learn how Hover works with AWS to deploy and run the different parts of your application.
 
@@ -18,7 +18,7 @@ Hover creates several AWS Lambda functions for each stage:
 - One function to execute CLI commands and run the Laravel scheduler
 - Multiple functions to process jobs from different SQS queues
 
-Inside the stage manifest file, you can configure the memory, timeout and concurrency of each of the functions. You can also configure the different aspects of each of the queue functions:
+You can configure the memory, timeout, and concurrency of each function within the stage manifest file. You can also customise the various aspects of each queue function:
 
 ```yaml
 http:
@@ -51,15 +51,15 @@ queue:
 
 In this example, Hover will create 4 functions. Two functions for handling HTTP requests and CLI invocations, and two functions for handling queued jobs.
 
-The HTTP function will be invoked by ApiGateway each time a request comes to your application. While the CLI Lambda will be invoked by an EventBridge scheduling rule that runs every minute. It can also be invoked manually through the `hover command run` command.
+ApiGateway will call the HTTP function whenever a request is made to your application. While the CLI Lambda will be called every minute by an EventBridge scheduling rule. It can also be invoked manually by using the 'hover command run' command.
 
-For the queue functions, they will be invoked by the Lambda-SQS integration. This integration polls the specified queues in each Lambda waiting for a job to become available. Once a job is picked up by the integration, the function will be invoked with the job payload.
+The Lambda-SQS integration will be responsible for invoking the queue functions. This integration polls the specified queues in each Lambda for available jobs. When the integration detects a job, the function is called with the job payload.
 
 ## APIGateway & Handling HTTP Requests
 
-Hover configures an APIGateway HTTP API and integrates it with the HTTP function of the stage. Each time the API receives a request, the HTTP lambda is invoked by the gateway.
+Hover configures an APIGateway HTTP API and integrates it with the stage's HTTP function. The HTTP lambda is invoked by the gateway every time the API receives a request.
 
-For each stage, AWS generates a unique domain, which can be used to test the application. It looks like this:
+AWS generates a unique domain for each stage that can be used to test the application. It appears as follows:
 
 ```
 https://d3876dg38.execute-api.eu-west-1.amazonaws.com
@@ -69,30 +69,30 @@ To access the app using your own domain, Hover utilizes APIGateway custom domain
 
 ## EventBridge Rules
 
-Hover utilizes Amazon EvenBridge rules to invoke the CLI function every minute with the `php artisan schedule:run` command. If any of your application's scheduled jobs is due, the command will execute them for you.
+Hover utilizes Amazon EvenBridge rules to invoke the CLI function every minute with the `php artisan schedule:run` command. If any of your application's scheduled jobs are due, the command will run them for you.
 
-Another use case for EventBridge rules is a warmer ping that invokes the HTTP function every 5 minutes. The runtime that was added to your app when you ran `hover build` will handle this ping and invoke a specified number of HTTP function containers concurrently. Each of these containers will have PHP-FPM up and running waiting for HTTP requests to process.
+A warmer ping that calls the HTTP function every 5 minutes is another use case for EventBridge rules. This ping will be handled by the runtime that was added to your app when you ran 'hover build,' which will invoke a specified number of HTTP function containers concurrently. PHP-FPM will be running in each of these containers, waiting for HTTP requests to be processed.
 
 ## SQS Queues
 
-For every queue specified in the stage manifest file, Hover configures an integration to poll the queue for jobs and invoke the corresponding function with the job payload.
+Hover configures an integration to poll the queue for jobs and invoke the corresponding function with the job payload for each queue specified in the stage manifest file.
 
 ## CloudWatch Log Groups
 
-For each of the Lambda functions created by Hover, a CloudWatch log group is created. All invocation records and logs will be stored in the log group. You can inspect any of these log groups in your AWS console.
+A CloudWatch log group is created for each Lambda function created by Hover. The log group will contain all invocation records and logs. In your AWS console, you can inspect any of these log groups.
 
 ## Assets S3 Bucket & CloudFront Distribution
 
-Hover creates an S3 bucket and a CloudFront distribution for each stage. Your application asset files are uploaded to the S3 bucket on every deployment and are served using the CloudFront CDN. Which reduces the latency when serving assets to users.
+For each stage, Hover creates an S3 bucket and a CloudFront distribution. On every deployment, your application asset files are uploaded to the S3 bucket and served via the CloudFront CDN. This decreases latency when serving assets to users.
 
 ## Elastic Container Registery
 
-An ECR repository is created for every stage. The repository will be used to publish the docker image tagged by Hover for every deployment. Hover then configures the different lambda functions to run the newly deployed tag.
+Every stage has its own ECR repository. The repository will be used to publish the Hover-tagged docker image for each deployment. Hover then configures the various lambda functions that will be used to run the newly deployed tag.
 
 ## CloudFormation
 
-Hover manages most of the AWS resources needed to deploy and run a stage using CloudFormation. A stack is created for every stage and is updated on every deployment.
+Hover uses CloudFormation to manage the majority of the AWS resources required to deploy and run a stage. Every stage has its own stack, which is updated with each deployment.
 
 ## Key Management Service
 
-KMS is used to store an encryption key for every stage. This key is generated by Hover and is never exposed. It is used internally to encrypt and decrypt the stage secrets when using the `hover secret encrypt` and `hover secret decrypt` commands. It is also used by the runtime to decrypt the secrets and populate environment variables each time a lambda container starts.
+For each stage, Hover uses KMS to store an encryption key. This key is generated by Hover and is never exposed. It is used internally to encrypt and decrypt the stage secrets when using the `hover secret encrypt` and `hover secret decrypt` commands. The runtime also uses it to decrypt secrets and populate environment variables each time a lambda container starts.

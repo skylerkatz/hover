@@ -5,9 +5,9 @@ In this step-by-step guide, we're going to create a production stage for a brand
 
 ## Security Considerations
 
-First thing we're going to do is create two IAM Roles to govern what the CloudFormation stack and stage functions can do. We will also create an IAM user that will be used to initiate the deployments and interact with AWS through Hover.
+The first step is to create two IAM Roles that will govern what the CloudFormation stack and stage functions can do. We'll also create an IAM user who will be used to start deployments and interact with AWS via Hover.
 
-A guide on how to create the two roles and the user can be [found here](/docs/iam-execution-policies.md).
+A step-by-step guide for creating the two roles and the user can be [found here](/docs/iam-execution-policies.md).
 
 After this step, we'll collect the following information:
 
@@ -15,7 +15,7 @@ After this step, we'll collect the following information:
 2. The ARN of the Lambda execution role.
 3. The `aws_access_key_id` and `aws_secret_access_key` of the IAM user.
 
-In a CI environment, we will add those keys to the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables. However, on the local machine we're going to create an AWS [named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) inside the `~/.aws/credentials` file:
+In a CI environment, we will add those keys to the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables. On local machines, however, we will create an AWS [named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) inside the `~/.aws/credentials` file:
 
 ```
 [production]
@@ -109,7 +109,7 @@ environment:
 
 Inside the `./hover/production.yml` manifest file, we may configure how Hover should deploy our application. A complete reference of the file can be [found here](/docs/manifest-file-reference.md).
 
-One of the most important things to consider is configuring the queue component so Hover creates all the queues the application uses. Otherwise, we'll get errors because the application is trying to dispatch jobs to a queue that doesn't exist.
+One of the most important considerations is configuring the queue component so that Hover creates all queues required by the application. Otherwise, we'll get errors because the application is attempting to dispatch jobs to a non-existent queue.
 
 Let's say our app pushes to 3 queues, here's how the setup will look:
 
@@ -140,7 +140,7 @@ We created 2 functions that process jobs from the three queues (default, notific
 
 ## Configuring The Docker Build
 
-Hover uses Docker to containerize our application and prepare it to run on AWS Lambda. It uses the same base docker image to run the tests as well, and uses a separate build stage to compile our application asset files.
+Hover containerizes our application and prepares it to run on AWS Lambda using Docker. It uses the same base docker image to run the tests, and uses a separate build stage to compile our application asset files.
 
 To configure the build, we may edit the `.hover/.Dockerfile` file.
 

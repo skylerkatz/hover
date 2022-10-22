@@ -1,8 +1,8 @@
 <h1 align="center"><img src="/docs/images/splash.png" alt="Hover" width="600"></h1>
 
-Hover is a CLI for deploying web applications to AWS Lambda. It utilizes Docker, CloudFormation and the AWS SDK to containerize and deploy your app.
+Hover is a CLI for deploying web applications to AWS Lambda. It containerizes and deploys your app using Docker, CloudFormation, and the AWS SDK.
 
-Hover currently supports **Laravel PHP**. Contributions to support more web frameworks (PHP or otherwise) are most welcome.
+**Laravel PHP** is currently supported by Hover. Contributions to help support more web frameworks (PHP or otherwise) are greatly appreciated.
 
 ## Features
 
@@ -36,7 +36,7 @@ Let's create a "dev" stage for an application called "Clouder":
 hover stage new clouder dev
 ```
 
-This command will create two files; `/.hover/dev.yml` and `/.hover/.Dockerfile` inside the root directory of our project. Using these files, we can configure how Hover builds and deploys the stage.
+This command will create two files in the root directory of our project: '/.hover/dev.yml' and '/.hover/.Dockerfile'. Using these files, we can configure how Hover builds and deploys the stage.
 
 Next, we will build our stage:
 
@@ -44,7 +44,7 @@ Next, we will build our stage:
 hover build dev
 ```
 
-This command will add the runtime files needed to run the app on Lambda. It will also build the docker images defined in the `.Dockerfile` file. More on the build process can be found [in this guide](docs/the-build-process.md).
+This command will add the runtime files required for the app to run on Lambda. It will also generate the Docker images specified in the `.Dockerfile` file. More information on the build process is available [in this guide](docs/the-build-process.md).
 
 Now that the build is complete, let's deploy:
 
@@ -52,7 +52,7 @@ Now that the build is complete, let's deploy:
 hover deploy
 ```
 
-This command will upload our asset files and docker image to S3 and ECR respectively. It will also deploy a CloudFormation stack that configures the different AWS resources to serve our application. More on the deployment process can be found [in this guide](docs/the-deployment-process.md).
+This command will upload our asset files to S3 and our Docker image to ECR. It will also deploy a CloudFormation stack that will configure the various AWS resources that will be used to serve our application. More information on the deployment process is available [in this guide](docs/the-deployment-process.md).
 
 ## Documentation
 
@@ -69,8 +69,8 @@ This command will upload our asset files and docker image to S3 and ECR respecti
 
 ## Fully Managed Serverless Laravel
 
-Want a hosted serverless deployment platform for Laravel? Check [Laravel Vapor](https://vapor.laravel.com/). It offers both a GUI & CLI for managing all AWS resources needed to run a Laravel app on AWS Lambda. It handles databases, Redis cache, SSL certificates, S3 storage, DynamoDB tables and more.
+Looking for a hosted serverless deployment platform for Laravel? Check [Laravel Vapor](https://vapor.laravel.com/). It provides both a GUI & CLI for managing all AWS resources needed to run a Laravel app on AWS Lambda. It handles databases, Redis cache, SSL certificates, S3 storage, DynamoDB tables and more.
 
 ## Contributing
 
-Since Hover ships as a binary that uses Docker to build the application, any web framework that's built with any programming language can be supported. Check the [archticture concept](/docs/concept.md) and [runtime environment](/docs/runtime-environment.md) for information on how Hover works.
+Hover ships as a binary that uses Docker to build the application, allowing it to support any web framework written in any programming language. For more information on how Hover works, see the [architecture concept](/docs/concept.md) and [runtime environment](/docs/runtime-environment.md).
