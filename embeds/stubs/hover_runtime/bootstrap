@@ -1,0 +1,70 @@
+#!/usr/local/bin/php
+<?php
+
+use Illuminate\Support\Str;
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+$appRoot = getenv('LAMBDA_TASK_ROOT');
+$runtimePath = getenv('LAMBDA_TASK_ROOT').'/hover_runtime';
+
+require $runtimePath.'/Hover.php';
+require $appRoot.'/vendor/autoload.php';
+require $runtimePath.'/Lambda.php';
+require $runtimePath.'/EventProcessors/AbstractEventProcessor.php';
+
+$manifest = json_decode(file_get_contents($runtimePath.'/manifest.json'), true);
+$lambda = new Lambda();
+$hover = new Hover($manifest);
+
+$processor = null;
+
+try {
+    $hover->createStorageDirectories();
+
+    $hover->populateEnvironmentVariables();
+
+    $app = $hover->getAppInstance($appRoot);
+
+    $hover->cacheLaravelStuff($app);
+
+    if (Str::endsWith($_ENV['AWS_LAMBDA_FUNCTION_NAME'], '-http')) {
+        require $runtimePath.'/FpmRequest.php';
+        require $runtimePath.'/FpmManager.php';
+        require $runtimePath.'/ApiGateway.php';
+        require $runtimePath.'/Warmer.php';
+        require $runtimePath.'/EventProcessors/HttpFpmEventProcessor.php';
+
+        $fpmManager = new FpmManager();
+
+        $fpmManager->start();
+
+        $processor = new HttpFpmEventProcessor(new ApiGateway(), $fpmManager, new Warmer());
+    }
+
+    if (Str::endsWith($_ENV['AWS_LAMBDA_FUNCTION_NAME'], '-cli')) {
+        require $runtimePath.'/EventProcessors/CliEventProcessor.php';
+
+        $processor = new CliEventProcessor();
+    }
+
+    if (Str::endsWith($_ENV['AWS_LAMBDA_FUNCTION_NAME'], '-queue')) {
+        require $runtimePath.'/Worker.php';
+        require $runtimePath.'/EventProcessors/QueueEventProcessor.php';
+
+        $processor = new QueueEventProcessor($app, $manifest);
+    }
+} catch (\Throwable $e) {
+    $lambda->sendInitializationFailureResponseToLambda($e);
+
+    throw $e;
+}
+
+while (true) {
+    [$invocationBody, $invocationId, $invocationDeadline] = $lambda->getNextInvocation();
+
+    $lambda->processInvocation(
+        $invocationBody, $invocationId, $invocationDeadline, $processor
+    );
+}

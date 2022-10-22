@@ -1,0 +1,31 @@
+before:
+  hooks:
+    - go mod download
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+checksum:
+  name_template: 'checksums.txt'
+
+brews:
+  - tap:
+      owner: themsaid
+      name: homebrew-tools
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: themsaid
+      email: themsaid@gmail.com
+    homepage: "https://github.com/themsaid/hover"
+    description: "A CLI for deploying web applications to AWS Lambda"
+    license: "BSD-3-Clause"
+    skip_upload: auto

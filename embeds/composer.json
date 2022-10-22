@@ -1,0 +1,21 @@
+{
+    "name": "themsaid/hover-php-runtime",
+    "type": "library",
+    "require-dev": {
+        "hollodotme/fast-cgi-client": "^3.1",
+        "guzzlehttp/promises": "^1.5",
+        "aws/aws-sdk-php": "^3.2",
+        "illuminate/support": "^9.0",
+        "symfony/process": "^6.1",
+        "illuminate/queue": "^9.36",
+        "vlucas/phpdotenv": "^5.5",
+        "illuminate/container": "^9.36",
+        "illuminate/http": "^9.36"
+    },
+    "authors": [
+        {
+            "name": "Mohamed Said",
+            "email": "themsaid@gmail.com"
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+name: stage-name
+aws-profile: aws-profile-name
+region: aws-region-name
+dockerfile: .Dockerfile
+auth:
+  stack-role: stack-role-arn
+  lambda-role: lambda-role-arn
+environment:
+  APP_DEBUG: true
+  APP_LOG_LEVEL: debug
+  FILESYSTEM_DRIVER: s3
+  FILESYSTEM_CLOUD: s3
+  LOG_CHANNEL: stderr
+  QUEUE_CONNECTION: sqs
+  SCHEDULE_CACHE_DRIVER: dynamodb
+  SESSION_DRIVER: cookie
+deploy-commands:
+  - 'php artisan about'
+http:
+  memory: 256
+  timeout: 15
+  warm: 3
+  concurrency: 100
+cli:
+  memory: 256
+  timeout: 10
+queue:
+  default:
+    memory: 256
+    timeout: 10
+    concurrency: 5
+    tries: 1
+    backoff: "5, 10"
+    queues:
+      - default
