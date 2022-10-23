@@ -7,13 +7,23 @@ Hover is a CLI for deploying web applications to AWS Lambda. It containerizes an
 ## Features
 
 - Multiple stages (dev, sandbox, production, ...)
+- Manages each stage separately. You can deploy each stage in a different AWS account.
 - Docker-based. Full control over the runtime environment.
 - Tests run on the same docker image that gets deployed.
-- Multiple queue lambdas for better prioritization of jobs.
+- Can configure multiple queue lambdas for better prioritization management.
 - Environment variables are packaged with the code. Forget the 4 KB Lambda environment variables limit.
 - Environment secrets are securely encrypted and packaged into the image.
-- Runs on your local/CI machines. From the machine to AWS APIs directly.
+- Deploys from your local/CI machines. From the machine to AWS APIs directly.
 
+## Motivation
+
+[Taylor Otwell](https://twitter.com/taylorotwell) brought serverless to Laravel in 2019 with the release of [Laravel Vapor](https://vapor.laravel.com/), and I was part of the team that worked on Vapor since the early days. I also helped maintain the platform for over 2 years.
+
+During this time, I've witnessed how serverless helped monolithic application developers scale their apps without complicated infrastructure management. Which made them focus less on infrastructure & more on building awesome apps.
+
+In some cases, though, using Vapor, or any deployment platform, wasn't an option due to heavy compliance rules. Teams building apps under such restrictions weren't allowed to share their AWS credentials with a 3rd party. Hover was built for these teams.
+
+Using Hover, you can deploy serverless web applications directly from your CI or local machines. The AWS credentials used by Hover can be limited to only handle specific resources required to run the app.
 
 ## Installation
 
