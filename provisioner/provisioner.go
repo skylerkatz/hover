@@ -1,8 +1,6 @@
 package provisioner
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
@@ -144,7 +142,6 @@ func getTemplate(manifest *manifest.Manifest, imageUri string, manifestHash stri
 		},
 	}
 
-	maps.Copy(resources, cloudFrontDistribution(manifest))
 	maps.Copy(resources, lambdaFunction("HTTPLambda", "http", imageUri, manifest, manifest.HTTP.Timeout, manifest.HTTP.Memory, manifest.HTTP.Concurrency))
 	maps.Copy(resources, lambdaAlias("HTTPLambda", "HTTPLambdaLiveAlias"))
 	maps.Copy(resources, warmer("HTTPLambda", "HTTPLambdaLiveAlias", manifest))
@@ -152,12 +149,7 @@ func getTemplate(manifest *manifest.Manifest, imageUri string, manifestHash stri
 	maps.Copy(resources, lambdaFunction("CliLambda", "cli", imageUri, manifest, manifest.Cli.Timeout, manifest.Cli.Memory, manifest.Cli.Concurrency))
 	maps.Copy(resources, lambdaAlias("CliLambda", "CliLambdaLiveAlias"))
 	maps.Copy(resources, scheduler("CliLambda", manifest))
-
-	for _, domain := range manifest.Domains {
-		domainHash := md5.Sum([]byte(domain))
-
-		maps.Copy(resources, apiMapping(hex.EncodeToString(domainHash[:])+"ApiMapping", domain))
-	}
+	maps.Copy(resources, cloudFrontDistribution("ApiGateway", manifest))
 
 	for queueFunctionName, queueConfiguration := range manifest.Queue {
 		maps.Copy(resources, lambdaFunction(queueFunctionName+"QueueLambda", queueFunctionName+"-queue", imageUri, manifest, queueConfiguration.Timeout, queueConfiguration.Memory, queueConfiguration.Concurrency))
@@ -178,7 +170,7 @@ func getTemplate(manifest *manifest.Manifest, imageUri string, manifestHash stri
 		"AssetsDomain": map[string]any{
 			"Description": "Assets Domain",
 			"Value": map[string]any{
-				"Fn::GetAtt": []string{"AssetsCFDistribution", "DomainName"},
+				"Fn::GetAtt": []string{"CFDistribution", "DomainName"},
 			},
 		},
 	})
@@ -222,10 +214,18 @@ func lambdaFunction(resourceName string, functionName string, imageUri string, m
 								},
 							},
 						},
+						"ASSET_URL": map[string]any{
+							"Fn::Join": []any{"/",
+								[]any{
+									"assets",
+									manifest.BuildDetails.Id,
+								},
+							},
+						},
 						"SQS_SUFFIX":   "-" + manifest.Name,
 						"CACHE_PREFIX": manifest.Name,
 						"CF_DOMAIN": map[string]any{
-							"Fn::GetAtt": []string{"AssetsCFDistribution", "DomainName"},
+							"Fn::GetAtt": []string{"CFDistribution", "DomainName"},
 						},
 						"APP_CONFIG_CACHE": "/tmp/storage/bootstrap/cache/config.php",
 						"APP_EVENTS_CACHE": "/tmp/storage/bootstrap/cache/events.php",
@@ -584,27 +584,16 @@ func apiGateway(httpLambdaResourceName string, httpLambdaAliasResourceName strin
 	}
 }
 
-func apiMapping(resourceName string, domain string) map[string]any {
-	return map[string]any{
-		resourceName: map[string]any{
-			"Type": "AWS::ApiGatewayV2::ApiMapping",
-			"Properties": map[string]any{
-				"ApiId": map[string]any{
-					"Ref": "ApiGateway",
-				},
-				"Stage":      "$default",
-				"DomainName": domain,
-			},
-		},
-	}
-}
-
-func cloudFrontDistribution(manifest *manifest.Manifest) map[string]any {
-	return map[string]any{
-		"AssetsCFDistribution": map[string]any{
+func cloudFrontDistribution(apiGatewayResourceName string, manifest *manifest.Manifest) map[string]any {
+	output := map[string]any{
+		"CFDistribution": map[string]any{
 			"Type": "AWS::CloudFront::Distribution",
+			"DependsOn": []any{
+				apiGatewayResourceName,
+			},
 			"Properties": map[string]any{
 				"DistributionConfig": map[string]any{
+					"HttpVersion": "http2",
 					"Origins": []any{
 						map[string]any{
 							"Id":         "assets-bucket",
@@ -613,18 +602,54 @@ func cloudFrontDistribution(manifest *manifest.Manifest) map[string]any {
 								"OriginAccessIdentity": "",
 							},
 						},
+						map[string]any{
+							"Id": "gateway",
+							"DomainName": map[string]any{
+								"Fn::Select": []any{"1", map[string]any{
+									"Fn::Split": []any{"//", map[string]any{
+										"Fn::GetAtt": []any{
+											apiGatewayResourceName,
+											"ApiEndpoint",
+										},
+									}},
+								}},
+							},
+							"CustomOriginConfig": map[string]any{
+								"OriginProtocolPolicy": "https-only",
+								"OriginSSLProtocols":   []string{"TLSv1.2"},
+							},
+						},
 					},
 					"Enabled": "true",
 					"Comment": manifest.Name + "-assets",
 					"DefaultCacheBehavior": map[string]any{
-						"AllowedMethods":        []any{"GET", "HEAD", "OPTIONS"},
-						"TargetOriginId":        "assets-bucket",
-						"CachePolicyId":         "658327ea-f89d-4fab-a63d-7e88639e58f6",
-						"OriginRequestPolicyId": "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf",
-						"ViewerProtocolPolicy":  "redirect-to-https",
+						"AllowedMethods":       []any{"GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"},
+						"TargetOriginId":       "gateway",
+						"CachePolicyId":        "b2884449-e4de-46a7-ac36-70bc7f1ddd6d",
+						"ViewerProtocolPolicy": "redirect-to-https",
+					},
+					"CacheBehaviors": []any{
+						map[string]any{
+							"AllowedMethods":        []any{"GET", "HEAD", "OPTIONS"},
+							"TargetOriginId":        "assets-bucket",
+							"PathPattern":           "/assets/*",
+							"CachePolicyId":         "658327ea-f89d-4fab-a63d-7e88639e58f6",
+							"OriginRequestPolicyId": "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf",
+							"ViewerProtocolPolicy":  "redirect-to-https",
+						},
 					},
 				},
 			},
 		},
 	}
+
+	if len(manifest.HTTP.Domains) > 0 {
+		output["CFDistribution"].(map[string]any)["Properties"].(map[string]any)["DistributionConfig"].(map[string]any)["Aliases"] = strings.Split(strings.ReplaceAll(manifest.HTTP.Domains, " ", ""), ",")
+		output["CFDistribution"].(map[string]any)["Properties"].(map[string]any)["DistributionConfig"].(map[string]any)["ViewerCertificate"] = map[string]any{"" +
+			"AcmCertificateArn": "arn:aws:acm:us-east-1:324027754711:certificate/e3109ab1-3ca4-4f33-b580-620bfdaf7617",
+			"SslSupportMethod": "sni-only",
+		}
+	}
+
+	return output
 }

@@ -49,7 +49,7 @@ class Hover
         fwrite(STDERR, "Hover: populating stage variables.".PHP_EOL);
 
         $values = array_merge([
-            'ASSET_URL' => 'https://'.$_ENV['CF_DOMAIN'].'/'.$this->manifest['build_details']['id']
+            'HOVER_BUILD_ID' => $this->manifest['build_details']['id']
         ], $this->manifest['environment']);
 
         foreach ($values as $key => $value) {

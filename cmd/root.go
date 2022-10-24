@@ -7,7 +7,6 @@ import (
 	buildCmd "hover/cmd/build"
 	commandCmd "hover/cmd/command"
 	deployCmd "hover/cmd/deploy"
-	domainCmd "hover/cmd/domain"
 	secretCmd "hover/cmd/secret"
 	stageCmd "hover/cmd/stage"
 	"os"
@@ -37,7 +36,6 @@ func Execute() {
 func init() {
 	rootCmd.AddCommand(stageCmd.Cmd())
 	rootCmd.AddCommand(commandCmd.Cmd())
-	rootCmd.AddCommand(domainCmd.Cmd())
 	rootCmd.AddCommand(secretCmd.Cmd())
 	rootCmd.AddCommand(secretCmd.Cmd())
 	rootCmd.AddCommand(deployCmd.Cmd())

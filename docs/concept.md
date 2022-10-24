@@ -59,14 +59,6 @@ The Lambda-SQS integration will be responsible for invoking the queue functions.
 
 Hover configures an APIGateway HTTP API and integrates it with the stage's HTTP function. The HTTP lambda is invoked by the gateway every time the API receives a request.
 
-AWS generates a unique domain for each stage that can be used to test the application. It appears as follows:
-
-```
-https://d3876dg38.execute-api.eu-west-1.amazonaws.com
-```
-
-To access the app using your own domain, Hover utilizes APIGateway custom domain mappings.
-
 ## EventBridge Rules
 
 Hover utilizes Amazon EvenBridge rules to invoke the CLI function every minute with the `php artisan schedule:run` command. If any of your application's scheduled jobs are due, the command will run them for you.
@@ -81,9 +73,15 @@ Hover configures an integration to poll the queue for jobs and invoke the corres
 
 A CloudWatch log group is created for each Lambda function created by Hover. The log group will contain all invocation records and logs. In your AWS console, you can inspect any of these log groups.
 
-## Assets S3 Bucket & CloudFront Distribution
+## Assets S3 Bucket
 
-For each stage, Hover creates an S3 bucket and a CloudFront distribution. On every deployment, your application asset files are uploaded to the S3 bucket and served via the CloudFront CDN. This decreases latency when serving assets to users.
+For each stage, Hover creates an S3 bucket. On every deployment, your application asset files are uploaded to the S3 bucket and served via the CloudFront CDN.
+
+## CloudFront Distribution
+
+A CloudFront distribution is created for each stage. This distribution is configured to serve the application and its asset files. All from the same domain.
+
+When custom domains are configured in the manifest file, Hover creates aliases that allow the distribution to handle requests coming to these domains.
 
 ## Elastic Container Registery
 

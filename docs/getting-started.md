@@ -191,15 +191,15 @@ Once the stack is provisioned, Hover will publish a new version of each of the f
 
 ## Interacting With The Application
 
-After the `deploy` command finishes, Hover will print an internal domain that looks like this:
+After the `deploy` command finishes, Hover will print an alias domain that looks like this:
 
 ```
-https://<api_id>.execute-api.eu-west-1.amazonaws.com
+https://<random_string>.cloudfront.net
 ```
 
 We can visit our website using this domain to test things out, we can also configure a custom domain by following [this guide](/docs/working-with-domains.md).
 
-To run artisan command, we may use the `command run` command:
+To run artisan commands, we may use the `command run` command:
 
 ```
 hover command run "inspire" --stage=production

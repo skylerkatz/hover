@@ -65,6 +65,8 @@ http:
     timeout: 30
     warm: 10
     concurrency: 100
+    domains: domain.com, *.domain.com, sub.domain.com
+    certificate: arn:aws:acm:us-east-1:...:certificate/...
 ```
 
 These are the configurations of the HTTP function.
@@ -72,6 +74,8 @@ These are the configurations of the HTTP function.
 - `memory` and `timeout` controls the maximum memory and maximum timeout the Lambda allocates.
 - `concurrency` controls the maximum concurrency slots reserved by the function.
 - `warm` controls the minimum number of containers to keep warm.
+- `domains` defines the list of custom domains that'll be used to serve the stage.
+- `certificate` defines the ARN of a certificate in `us-east-1` that covers the domains.
 
 ```yaml
 cli:

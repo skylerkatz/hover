@@ -23,7 +23,6 @@ type Manifest struct {
 	Region         string            `yaml:"region" json:"region"`
 	Environment    map[string]string `yaml:"environment" json:"environment"`
 	DeployCommands []string          `yaml:"deploy-commands" json:"deploy-commands"`
-	Domains        []string          `yaml:"domains" json:"domains"`
 	Dockerfile     string            `yaml:"dockerfile" json:"dockerfile"`
 	Auth           struct {
 		LambdaRole string `yaml:"lambda-role" json:"lambda-role"`
@@ -34,10 +33,12 @@ type Manifest struct {
 		Subnets        []string `yaml:"subnets" json:"subnets"`
 	} `yaml:"vpc" json:"vpc"`
 	HTTP struct {
-		Memory      int `yaml:"memory" json:"memory"`
-		Timeout     int `yaml:"timeout" json:"timeout"`
-		Warm        int `yaml:"warm" json:"warm"`
-		Concurrency int `yaml:"concurrency" json:"concurrency"`
+		Memory      int    `yaml:"memory" json:"memory"`
+		Timeout     int    `yaml:"timeout" json:"timeout"`
+		Warm        int    `yaml:"warm" json:"warm"`
+		Concurrency int    `yaml:"concurrency" json:"concurrency"`
+		Domains     string `yaml:"domains" json:"domains"`
+		Certificate string `yaml:"certificate" json:"certificate"`
 	} `yaml:"http" json:"http"`
 	Cli struct {
 		Memory      int `yaml:"memory" json:"memory"`

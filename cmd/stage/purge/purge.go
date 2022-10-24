@@ -104,7 +104,7 @@ func Run(o *options) error {
 		for _, object := range output.Contents {
 			shouldDelete := true
 			for _, buildId := range tagsToRetain {
-				if strings.HasPrefix(*object.Key, *buildId) {
+				if strings.HasPrefix(*object.Key, "assets/"+*buildId) {
 					shouldDelete = false
 					break
 				}

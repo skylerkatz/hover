@@ -210,6 +210,7 @@ func runDockerBuild(stage *manifest.Manifest, o *options) error {
 
 	utils.PrintStep("Building the assets container image")
 
+	// TODO: Put the assets path in an environment variable
 	err = utils.Exec(fmt.Sprintf("docker build --target=assets --file=%s --tag=%s .",
 		dockerFilePath,
 		stage.Name+":latest-assets",

@@ -7,7 +7,6 @@ import (
 	awsLib "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/apigatewayv2"
-	"github.com/aws/aws-sdk-go-v2/service/apigatewayv2/types"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	cloudformationTypes "github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
@@ -18,7 +17,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3Types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
-	"github.com/aws/smithy-go"
 	"github.com/aws/smithy-go/ptr"
 	"os"
 	"strings"
@@ -303,51 +301,6 @@ func (aws *Aws) GetStackResources(name *string) (*cloudformation.DescribeStackRe
 func (aws *Aws) GetStackEvents(name *string) (*cloudformation.DescribeStackEventsOutput, error) {
 	result, err := aws.cloudformation().DescribeStackEvents(context.Background(), &cloudformation.DescribeStackEventsInput{
 		StackName: name,
-	})
-
-	return result, err
-}
-
-func (aws *Aws) GetDomain(name *string) (*apigatewayv2.GetDomainNameOutput, error) {
-	result, err := aws.apiGateway().GetDomainName(context.Background(), &apigatewayv2.GetDomainNameInput{
-		DomainName: name,
-	})
-
-	return result, err
-}
-
-func (aws *Aws) DomainDoesntExist(err error) bool {
-	var ae smithy.APIError
-
-	return errors.As(err, &ae) && ae.ErrorCode() == "NotFoundException"
-}
-
-func (aws *Aws) CreateDomain(name *string, certificateArn *string) (*apigatewayv2.CreateDomainNameOutput, error) {
-	result, err := aws.apiGateway().CreateDomainName(context.Background(), &apigatewayv2.CreateDomainNameInput{
-		DomainName: name,
-		DomainNameConfigurations: []types.DomainNameConfiguration{
-			{
-				CertificateArn: certificateArn,
-				EndpointType:   types.EndpointTypeRegional,
-				SecurityPolicy: types.SecurityPolicyTls12,
-			},
-		},
-	})
-
-	return result, err
-}
-
-func (aws *Aws) GetDomainMappings(name *string) (*apigatewayv2.GetApiMappingsOutput, error) {
-	result, err := aws.apiGateway().GetApiMappings(context.Background(), &apigatewayv2.GetApiMappingsInput{
-		DomainName: name,
-	})
-
-	return result, err
-}
-
-func (aws *Aws) DeleteDomain(name *string) (*apigatewayv2.DeleteDomainNameOutput, error) {
-	result, err := aws.apiGateway().DeleteDomainName(context.Background(), &apigatewayv2.DeleteDomainNameInput{
-		DomainName: name,
 	})
 
 	return result, err

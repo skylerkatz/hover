@@ -147,7 +147,7 @@ func uploadAssets(stage *manifest.Manifest, awsClient *aws.Aws) error {
 
 		defer file.Close()
 
-		objectKey := stage.BuildDetails.Id + "/" + strings.TrimPrefix(path,
+		objectKey := "assets/" + stage.BuildDetails.Id + "/" + strings.TrimPrefix(path,
 			utils.Path.AssetsOut+string(os.PathSeparator),
 		)
 

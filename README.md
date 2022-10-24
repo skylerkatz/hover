@@ -14,6 +14,7 @@ Hover is a CLI for deploying web applications to AWS Lambda. It containerizes an
 - Environment variables are packaged with the code. Forget the 4 KB Lambda environment variables limit.
 - Environment secrets are securely encrypted and packaged into the image.
 - Deploys from your local/CI machines. From the machine to AWS APIs directly.
+- The application and its asset files are served from the same domain.
 
 ## Motivation
 
