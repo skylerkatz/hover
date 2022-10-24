@@ -22,6 +22,27 @@ This one includes the required libraries to run the application and also run the
 
 This one is used to compile the asset files of your application and move the output to the `./hover/out/assets` directory. This directory is then uploaded to the S3 bucket during the deployment.
 
+During the build, a `ASSET_URL` environment variable is populated with the path to the build directory inside the S3 bucket:
+
+```
+ASSET_URL=assets/<build_id>
+```
+
+The default `.Dockerfile` Hover creates, uses the value from the `ASSET_URL` variable to populate two more variables: `MIX_ASSET_URL` and `VITE_ASSET_URL`. These variables are used by Laravel Mix & Vite respectively.
+
+You can use these variables to prefix paths to static assets in your JavaScript files:
+
+```
+<img :src="process.env.VITE_ASSET_URL + '/images/logo.png'"/>
+```
+
+Finally, Vapor runs the following command to prepend the asset URL to all `url()` references in your css files:
+
+```bash
+find . -type f -name '*.css' -exec \
+     sed -i'' -e 's|url(|url('"$ASSET_URL"'/|g'  {} +
+```
+
 ### The Tests Stage
 
 This stage runs your tests inside the base docker image.
@@ -67,3 +88,6 @@ docker run --rm -v /PATH/TO/.hover/out/assets:/out <stage>:latest-assets cp -R p
 ```
 
 At the end of the build, the final tag will be ready on the host machine under the naming convention of `<stage>:<build_id>` and the compiled assets files will be stored in the `.hover/out/assets` directory.
+
+
+find . -type f -name '*.css' -exec sed -i'' -e 's/url(/url(assets\/zxczxc\//g'  {} +

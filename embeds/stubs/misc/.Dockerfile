@@ -38,6 +38,7 @@ COPY package.json vite.config.js /app/
 COPY resources /app/resources
 WORKDIR /app
 RUN npm install && npm run build
+RUN find . -type f -name '*.css' -exec sed -i'' -e 's|url(|url('"$ASSET_URL"'/|g'  {} +
 
 
 #
