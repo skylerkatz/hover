@@ -30,6 +30,9 @@ ENTRYPOINT []
 # Assets
 #
 FROM node:16 as assets
+ARG ASSET_URL
+ARG MIX_ASSET_URL=$ASSET_URL
+ARG VITE_ASSET_URL=$ASSET_URL
 COPY public /app/public
 COPY package.json vite.config.js /app/
 COPY resources /app/resources

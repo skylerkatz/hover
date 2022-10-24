@@ -55,7 +55,9 @@ docker run --rm <stage>:latest-tests
 If the tests fails, the `hover build` command will return the errors. Otherwise, it will move to building the assets stage:
 
 ```shell
-docker build --target=assets --tag=<stage>:latest-assets
+docker build --target=assets \
+             --tag=<stage>:latest-assets \
+             --build-arg ASSET_URL=assets/<build_id>
 ```
 
 Finally, Hover hover runs the assets tag and mounts the `.hover/out/assets` directory. The command the container runs copies the asset compiling output to the mounted volume:

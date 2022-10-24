@@ -72,9 +72,9 @@ func Run(o *options) error {
 	}
 
 	addRuntime(stage, o.alias)
-	addManifest(*stage)
+	buildId := addManifest(*stage)
 
-	err = runDockerBuild(stage, o)
+	err = runDockerBuild(stage, o, buildId)
 	if err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func addRuntime(stage *manifest.Manifest, alias string) {
 	}
 }
 
-func addManifest(stage manifest.Manifest) {
+func addManifest(stage manifest.Manifest) string {
 	buildId := uuid.NewString()
 
 	manifestJson, _ := json.MarshalIndent(stage, "", "\t")
@@ -165,9 +165,11 @@ func addManifest(stage manifest.Manifest) {
 	jsonContent, _ := json.MarshalIndent(stage, "", "\t")
 
 	os.WriteFile(filepath.Join(utils.Path.ApplicationOut, "hover_runtime", "manifest.json"), jsonContent, os.ModePerm)
+
+	return stage.BuildDetails.Id
 }
 
-func runDockerBuild(stage *manifest.Manifest, o *options) error {
+func runDockerBuild(stage *manifest.Manifest, o *options, buildId string) error {
 	utils.PrintStep("Building the base container image")
 
 	dockerFilePath := filepath.Join(utils.Path.Hover, stage.Dockerfile)
@@ -210,10 +212,10 @@ func runDockerBuild(stage *manifest.Manifest, o *options) error {
 
 	utils.PrintStep("Building the assets container image")
 
-	// TODO: Put the assets path in an environment variable
-	err = utils.Exec(fmt.Sprintf("docker build --target=assets --file=%s --tag=%s .",
+	err = utils.Exec(fmt.Sprintf("docker build --target=assets --file=%s --tag=%s --build-arg ASSET_URL=%s .",
 		dockerFilePath,
 		stage.Name+":latest-assets",
+		"assets/"+buildId,
 	), utils.Path.Current)
 	if err != nil {
 		return err
