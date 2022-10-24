@@ -28,11 +28,11 @@ hover deploy
 
 After a successful deployment, Hover will print a `CDN Domain`. Use this domain as a value for a `CNAME` record in your domain's DNS settings.
 
-```
-CNAME    @    d1ascr3e2rsbz3.cloudfront.net
-CNAME    *    d1ascr3e2rsbz3.cloudfront.net
-CNAME    subdomain    d1ascr3e2rsbz3.cloudfront.net
-```
+| TYPE | NAME |CONTENT
+| --- | --- | --- |
+| CNAME | domain.com | d1ascr3e2rsbz3.cloudfront.net
+| CNAME | * | d1ascr3e2rsbz3.cloudfront.net
+| CNAME | sub.domain.com | d1ascr3e2rsbz3.cloudfront.net
 
 ## Using Multiple Domains
 
