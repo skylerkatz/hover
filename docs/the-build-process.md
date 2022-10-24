@@ -44,7 +44,7 @@ const assetUrl = import.meta.env.VITE_ASSET_URL;
 </template>
 ```
 
-Finally, Vapor runs the following command to prepend the asset URL to all `url()` references in your css files:
+Finally, Hover runs the following command to prepend the asset URL to all `url()` references in your css files:
 
 ```bash
 find . -type f -name '*.css' -exec \
