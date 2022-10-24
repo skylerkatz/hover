@@ -59,6 +59,8 @@ The Lambda-SQS integration will be responsible for invoking the queue functions.
 
 A CloudFront distribution is created for each stage. This distribution is configured to serve the application and its asset files. All from the same domain.
 
+Hover configures 2 origins and instructs CloudFormation to use the S3 assets origin when the request path matches `/assets/*`.
+
 When custom domains are configured in the manifest file, Hover creates aliases that allow the distribution to handle requests coming to these domains.
 
 ## APIGateway & Handling HTTP Requests
