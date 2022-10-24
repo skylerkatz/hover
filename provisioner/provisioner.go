@@ -167,8 +167,8 @@ func getTemplate(manifest *manifest.Manifest, imageUri string, manifestHash stri
 				"Fn::GetAtt": []string{"ApiGateway", "ApiEndpoint"},
 			},
 		},
-		"AssetsDomain": map[string]any{
-			"Description": "Assets Domain",
+		"CDNDomain": map[string]any{
+			"Description": "CDN Domain",
 			"Value": map[string]any{
 				"Fn::GetAtt": []string{"CFDistribution", "DomainName"},
 			},
@@ -621,7 +621,7 @@ func cloudFrontDistribution(apiGatewayResourceName string, manifest *manifest.Ma
 						},
 					},
 					"Enabled": "true",
-					"Comment": manifest.Name + "-assets",
+					"Comment": manifest.Name,
 					"DefaultCacheBehavior": map[string]any{
 						"AllowedMethods":       []any{"GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"},
 						"TargetOriginId":       "gateway",

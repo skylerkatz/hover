@@ -3,12 +3,12 @@
 For each stage created by Hover, a CloudFront distribution is created and assigned a unique domain, which can be used to test the application. It looks like this:
 
 ```
-https://d1ascr3e2rsbz3.cloudfront.net
+d1ascr3e2rsbz3.cloudfront.net
 ```
 
 To access the app using your own domain, Hover utilizes CloudFront aliases. To get started, you need to issue a certificate for the domain from [AWS certificate manager](https://console.aws.amazon.com/acm). This certificate *must* be issued in `us-east-1`.
 
-Once the certificate is issued, you need to update the stage manifest file to instruct Hover to map the domain to the stage by providing two attributes under the `http` key: `domains` and `certificate`.
+Once the certificate is issued, update the stage manifest file to instruct Hover to map the domain to the stage by providing two attributes under the `http` key: `domains` and `certificate`.
 
 ```yaml
 
@@ -26,8 +26,20 @@ hover build <stage_name>
 hover deploy
 ```
 
-To use multiple domains, separate between them using a comma:
+After a successful deployment, Hover will print a `CDN Domain`. Use this domain as a value for a `CNAME` record in your domain's DNS settings.
+
+```
+CNAME    @    d1ascr3e2rsbz3.cloudfront.net
+CNAME    *    d1ascr3e2rsbz3.cloudfront.net
+CNAME    subdomain    d1ascr3e2rsbz3.cloudfront.net
+```
+
+## Using Multiple Domains
+
+To use multiple domains, separate between them using a comma inside the `domains` attribute.
 
 ```yaml
 domains: domain.com, *.domain.com
 ```
+
+> **Warning**: Make sure the certificate covers all the domain names used.
