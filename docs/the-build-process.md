@@ -33,7 +33,15 @@ The default `.Dockerfile` Hover creates, uses the value from the `ASSET_URL` var
 You can use these variables to prefix paths to static assets in your JavaScript files:
 
 ```html
-<img :src="process.env.VITE_ASSET_URL + '/images/logo.png'"/>
+<script setup>
+const assetUrl = import.meta.env.VITE_ASSET_URL;
+</script>
+
+<template>
+    <div class="card m-3">
+        <img :src="assetUrl + '/images/logo.png'"/>
+    </div>
+</template>
 ```
 
 Finally, Vapor runs the following command to prepend the asset URL to all `url()` references in your css files:
