@@ -161,11 +161,13 @@ func getTemplate(manifest *manifest.Manifest, imageUri string, manifestHash stri
 	}
 
 	maps.Copy(outputs, map[string]any{
-		"ApiGatewayUri": map[string]any{
-			"Description": "Internal Domain",
-			"Value": map[string]any{
-				"Fn::GetAtt": []string{"ApiGateway", "ApiEndpoint"},
-			},
+		"StageName": map[string]any{
+			"Description": "Stage Name",
+			"Value":       manifest.Name,
+		},
+		"BuildId": map[string]any{
+			"Description": "Build ID",
+			"Value":       manifest.BuildDetails.Id,
 		},
 		"CDNDomain": map[string]any{
 			"Description": "CDN Domain",

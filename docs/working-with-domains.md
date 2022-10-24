@@ -26,7 +26,15 @@ hover build <stage_name>
 hover deploy
 ```
 
-After a successful deployment, Hover will print a `CDN Domain`. Use this domain as a value for a `CNAME` record in your domain's DNS settings.
+After a successful deployment, Hover will print a `CDN Domain`.
+
+```
+Build ID   | 39da937d-1258-4ebe-b0e4-fb92ed45135d
+Stage      | clouder-dev
+CDN Domain | d1ascr3e2rsbz3.cloudfront.net
+```
+
+Use this domain as a value for a `CNAME` record in your domain's DNS settings.
 
 | TYPE | NAME |CONTENT
 | --- | --- | --- |
