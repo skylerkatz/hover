@@ -47,7 +47,7 @@ Let's create a "dev" stage for an application called "Clouder":
 hover stage new clouder dev
 ```
 
-This command will create two files in the root directory of our project: '/.hover/dev.yml' and '/.hover/.Dockerfile'. Using these files, we can configure how Hover builds and deploys the stage.
+This command will create two files in the root directory of our project: `/.hover/dev.yml` and `/.hover/.Dockerfile`. Using these files, we can configure how Hover builds and deploys the stage.
 
 Next, we will build our stage:
 
