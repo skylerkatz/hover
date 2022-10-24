@@ -32,7 +32,7 @@ The default `.Dockerfile` Hover creates, uses the value from the `ASSET_URL` var
 
 You can use these variables to prefix paths to static assets in your JavaScript files:
 
-```
+```html
 <img :src="process.env.VITE_ASSET_URL + '/images/logo.png'"/>
 ```
 
