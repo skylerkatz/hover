@@ -55,9 +55,19 @@ ApiGateway will call the HTTP function whenever a request is made to your applic
 
 The Lambda-SQS integration will be responsible for invoking the queue functions. This integration polls the specified queues in each Lambda for available jobs. When the integration detects a job, the function is called with the job payload.
 
+## CloudFront Distribution
+
+A CloudFront distribution is created for each stage. This distribution is configured to serve the application and its asset files. All from the same domain.
+
+When custom domains are configured in the manifest file, Hover creates aliases that allow the distribution to handle requests coming to these domains.
+
 ## APIGateway & Handling HTTP Requests
 
 Hover configures an APIGateway HTTP API and integrates it with the stage's HTTP function. The HTTP lambda is invoked by the gateway every time the API receives a request.
+
+## Assets S3 Bucket
+
+For each stage, Hover creates an S3 bucket. On every deployment, your application asset files are uploaded to the S3 bucket and served via the CloudFront CDN.
 
 ## EventBridge Rules
 
@@ -72,16 +82,6 @@ Hover configures an integration to poll the queue for jobs and invoke the corres
 ## CloudWatch Log Groups
 
 A CloudWatch log group is created for each Lambda function created by Hover. The log group will contain all invocation records and logs. In your AWS console, you can inspect any of these log groups.
-
-## Assets S3 Bucket
-
-For each stage, Hover creates an S3 bucket. On every deployment, your application asset files are uploaded to the S3 bucket and served via the CloudFront CDN.
-
-## CloudFront Distribution
-
-A CloudFront distribution is created for each stage. This distribution is configured to serve the application and its asset files. All from the same domain.
-
-When custom domains are configured in the manifest file, Hover creates aliases that allow the distribution to handle requests coming to these domains.
 
 ## Elastic Container Registery
 
